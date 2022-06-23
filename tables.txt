@@ -1,0 +1,76 @@
+
+////////// user table  //////////
+
+CREATE TYPE user_type AS ENUM ( 'user', 'master');
+
+CREATE TABLE IF NOT EXISTS public."user"
+(
+    id integer NOT NULL DEFAULT nextval('users_id_seq'::regclass),
+    created_on date,
+    email character varying(255) COLLATE pg_catalog."default",
+    last_login date,
+	profile_pic_url character varying(255),
+	user_type USER_TYPE, 
+    password character varying(255) COLLATE pg_catalog."default",
+    username character varying(255) COLLATE pg_catalog."default",
+    CONSTRAINT users_pkey PRIMARY KEY (id)
+)
+
+////////// master table  //////////
+CREATE SEQUENCE IF NOT EXISTS master_id_seq;
+
+CREATE TABLE IF NOT EXISTS public.master
+(
+    id integer NOT NULL DEFAULT nextval('master_id_seq'::regclass),
+    user_id integer,
+    description character varying(500),
+    rating float,
+	CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES "user"(id),
+    CONSTRAINT master_pkey PRIMARY KEY (id)
+)
+
+////////// master-sphere table  //////////
+CREATE TYPE sphere AS ENUM ( 'embroidery', 'ceramics', 'sewing', 'woodwork', 'silversmith', 'goldsmith');
+
+CREATE SEQUENCE IF NOT EXISTS master_sphere_id_seq;
+
+CREATE TABLE IF NOT EXISTS public.master_sphere
+(
+    id integer NOT NULL DEFAULT nextval('master_sphere_id_seq'::regclass),
+    user_id integer,  
+    sphere sphere,
+    CONSTRAINT master_sphere_pkey PRIMARY KEY (id)
+)
+
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.users
+    OWNER to postgres;
+	
+	INSERT INTO public."user"(
+	email, password, username)
+	VALUES ('t.abgaryan', '15253555', 'Tatev');
+	
+	
+	
+////////// session table  //////////
+	
+	
+	CREATE SEQUENCE session_id_seq;
+
+	CREATE TABLE IF NOT EXISTS public.session
+(
+    id integer NOT NULL DEFAULT nextval('session_id_seq'::regclass),
+    user_id integer NOT NULL REFERENCES public."user"(id),
+	auth_token varchar(100) NOT NULL,
+	last_login date,
+    client_ip varchar(50),	
+    CONSTRAINT user_pkey PRIMARY KEY (id),
+	UNIQUE(auth_token)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."session"
+    OWNER to postgres;
